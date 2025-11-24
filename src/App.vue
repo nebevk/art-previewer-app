@@ -1,17 +1,26 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import ImageGrid from './components/ImageGrid.vue'
+import HistorySidebar from './components/HistorySidebar.vue'
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="min-h-screen bg-base-200 flex flex-col">
+    <!-- Header -->
+    <header class="bg-base-300 border-b border-base-100 p-6 sticky top-0 z-10 backdrop-blur">
+      <div class="max-w-7xl mx-auto flex items-center gap-6">
+        <h1 class="text-3xl font-bold">ArtPreviewer</h1>
+        <input type="text" />
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex overflow-hidden">
+      <main class="flex-1 p-8 overflow-y-auto">
+        <ImageGrid />
+      </main>
+      <HistorySidebar />
+    </div>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
 <style scoped>
