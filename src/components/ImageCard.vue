@@ -27,14 +27,14 @@ const download = async () => {
 
 <template>
   <div
-    class="group relative rounded-xl overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing transition-all hover:scale-[1.02]"
+    class="group relative rounded-sm overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing transition-all hover:scale-[1.02]"
     draggable="true" @dragstart="startDrag" @click="download">
     <img :src="photo.src.large2x" :alt="photo.alt" class="w-full aspect-video object-cover" loading="lazy" />
 
-    <div class="absolute inset-0 bg-gradient-to-t from-black/90 opacity-0 group-hover:opacity-100 transition">
+    <div class="absolute inset-0 bg-linear-to-t from-black/90 via-transparent opacity-0 group-hover:opacity-100 transition">
       <div class="absolute bottom-4 left-4 right-4 text-white">
-        <p class="font-bold text-lg truncate">{{ photo.alt }}</p>
-        <p class="text-sm opacity-80">by {{ photo.photographer }}</p>
+        <p class="font-light text-md truncate">{{ photo.alt }}</p>
+        <p class="text-xs opacity-80">by {{ photo.photographer }}</p>
         <p class="text-xs mt-2 opacity-70">Click to download | Drag to desktop/Figma</p>
       </div>
     </div>

@@ -13,9 +13,9 @@ const handleSearch = () => store.search(true)
 <template>
   <div class="min-h-screen bg-base-200 flex flex-col">
     <!-- Header -->
-    <header class="bg-base-300 border-b border-base-100 p-6 sticky top-0 z-10 backdrop-blur">
+    <header class="bg-base-300 border-b border-base-100 p-3 sticky top-0 z-10 backdrop-blur">
       <div class="max-w-7xl mx-auto flex items-center gap-6">
-        <h1 class="text-3xl font-bold">ArtViewer</h1> 
+        <h1 class="text-5xl font-light font-outfit">Art Viewer</h1> 
         <input v-model="store.query"
          type="text"
          @input="handleSearch" />
