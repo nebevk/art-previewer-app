@@ -1,6 +1,13 @@
 <script setup lang="ts">
+import { useBrainsStore } from './stores/brains'
 import ImageGrid from './components/ImageGrid.vue'
 import HistorySidebar from './components/HistorySidebar.vue'
+
+
+const store = useBrainsStore()
+const handleSearch = () => store.search(true)
+
+
 </script>
 
 <template>
@@ -8,8 +15,10 @@ import HistorySidebar from './components/HistorySidebar.vue'
     <!-- Header -->
     <header class="bg-base-300 border-b border-base-100 p-6 sticky top-0 z-10 backdrop-blur">
       <div class="max-w-7xl mx-auto flex items-center gap-6">
-        <h1 class="text-3xl font-bold">ArtPreviewer</h1>
-        <input type="text" />
+        <h1 class="text-3xl font-bold">ArtViewer</h1> 
+        <input v-model="store.query"
+         type="text"
+         @input="handleSearch" />
       </div>
     </header>
 
