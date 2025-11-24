@@ -18,6 +18,9 @@ const download = async () => {
   console.log("ImageCard: blob", blob)
   console.log("ImageCard: props", props.photo)
   saveAs(blob, `${props.photo.alt}_${props.photo.id}.jpg`)
+
+  // add to history
+  store.addToHistory(props.photo)
   
 }
 </script>

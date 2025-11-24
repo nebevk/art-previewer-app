@@ -19,49 +19,71 @@ export interface Img {
 
 /* brains store */
 
-export const useBrainsStore = defineStore("brains", () => {
-  const photos = ref<Img[]>([]);
-  const query = ref("art");
-  const page = ref(1);
-  const loading = ref(false);
+export const useBrainsStore = defineStore(
+  "brains",
+  () => {
+    const photos = ref<Img[]>([]);
+    const query = ref("art");
+    const page = ref(1);
+    const loading = ref(false);
 
-  const search = async (reset = false) => {
-    if (reset) {
-      page.value = 1;
-      photos.value = [];
-    }
-    loading.value = true;
+    // history reference
+    const downloadHistory = ref<Img[]>([]);
 
-    try {
-      const res = await axios.get("https://api.pexels.com/v1/search", {
-        headers: { Authorization: import.meta.env.VITE_PEXELS_API_KEY },
-        params: {
-          query: query.value || "art",
-          per_page: 40,
-          page: page.value,
-        },
-      });
-      console.log("res.data", res.data);
+    const search = async (reset = false) => {
+      if (reset) {
+        page.value = 1;
+        photos.value = [];
+      }
+      loading.value = true;
 
-      const newPhotos = res.data.photos.map((p: any) => ({
-        id: p.id,
-        alt: p.alt || "Untitled",
-        photographer: p.photographer,
-        avg_color: p.avg_color,
-        src: p.src,
-      }));
-      // Combine new photos with existing photos if not resetting
-      photos.value = reset ? newPhotos : [...photos.value, ...newPhotos];
-      if (!reset) page.value++;
-    } catch (e) {
-      console.error(e);
-    } finally {
-      loading.value = false;
-    }
-  };
+      try {
+        const res = await axios.get("https://api.pexels.com/v1/search", {
+          headers: { Authorization: import.meta.env.VITE_PEXELS_API_KEY },
+          params: {
+            query: query.value || "art",
+            per_page: 40,
+            page: page.value,
+          },
+        });
+        console.log("res.data", res.data);
 
-  // Load initial images
-  search();
+        const newPhotos = res.data.photos.map((p: any) => ({
+          id: p.id,
+          alt: p.alt || "Untitled",
+          photographer: p.photographer,
+          avg_color: p.avg_color,
+          src: p.src,
+        }));
+        // Combine new photos with existing photos if not resetting
+        photos.value = reset ? newPhotos : [...photos.value, ...newPhotos];
+        if (!reset) page.value++;
+      } catch (e) {
+        console.error(e);
+      } finally {
+        loading.value = false;
+      }
+    };
 
-  return { photos, query, loading, search };
-});
+    const addToHistory = (photo: Img) => {
+      if (!downloadHistory.value.some((p: Img) => p.id === photo.id)) {
+        downloadHistory.value.unshift({
+          ...photo,
+          downloadedAt: new Date().toISOString(),
+        });
+        console.log("brains store: addToHistory: downloadHistory", downloadHistory.value);
+      }
+      if (downloadHistory.value.length > 100) downloadHistory.value.pop();
+      
+    };
+    // Load initial images
+    search();
+
+    return { photos, query, loading, search, downloadHistory, addToHistory };
+  },
+  {
+    persist: {
+      pick: ["downloadHistory"],
+    },
+  }
+);
