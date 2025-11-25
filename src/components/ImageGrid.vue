@@ -14,7 +14,7 @@ const store = useBrainsStore()
 
     <!-- Real images -->
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
-      <ImageCard v-for="photo in store.photos" :key="photo.id" :photo="photo" />
+      <ImageCard v-for="photo in store.filteredPhotos" :key="photo.id" :photo="photo" />
     </div>
 
     <!-- Load More -->
