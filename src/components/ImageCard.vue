@@ -85,7 +85,7 @@ const download = async () => {
     </div>
 
     <div class="absolute top-2 left-2">
-      <div class="w-6 h-6 rounded-lg shadow-2xl border-4 border-white/20"
+      <div class="w-6 h-6 rounded-full shadow-2xl border border-white/20 cursor-pointer"
         :style="{ backgroundColor: photo.avg_color }" ></div>
     </div>
 

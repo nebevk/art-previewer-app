@@ -51,18 +51,15 @@ onUnmounted(() => {
     <div class="text-center my-12">
       <button @click="store.loadMore()"
               :disabled="store.loading || !store.hasMoreResults"
-              class="btn btn-lg btn-primary">
+              class="btn btn-lg">
         <span v-if="store.loading" class="loading loading-spinner loading-sm"></span>
-        <span v-else-if="!store.hasMoreResults">No more results</span>
-        <span v-else>Load more images</span>
+        <span v-else-if="!store.hasMoreResults" class="font-light">No more results</span>
+        <span v-else class="font-light">Load more images</span>
       </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
+
 </style>

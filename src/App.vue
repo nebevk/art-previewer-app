@@ -44,52 +44,52 @@ const clearFilters = () => {
 
           <div class="flex-1 max-w-2xl">
             <div class="relative">
-              <input v-model="store.query" type="text" placeholder="Search millions of art, photos, illustrations..."
-                class="input input-lg input-bordered rounded-full shadow-lg w-full pr-16 text-lg" autofocus spellcheck="false" />
+              <input v-model="store.query" type="text" placeholder="Beautiful artwork awaits..."
+                class="input input-lg rounded-full shadow-lg w-full pr-16 text-lg border-none" autofocus
+                spellcheck="false" />
 
 
-              <div v-if="store.activeColor"
-                class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg shadow-lg border-2 border-white"
-                :style="{ backgroundColor: store.activeColor }"></div>
-            </div>
-          </div>
+              <!-- color pallete -->
+              <div class="absolute right-1 top-1/2 -translate-y-1/2 z-50">
+                <div class="dropdown dropdown-bottom dropdown-end">
+                  <div tabindex="0" role="button" class="btn btn-circle shadow-2xl"
+                    :class="{ 'btn-disabled': store.loading }"
+                    :style="{ backgroundColor: store.activeColor || 'black' }">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485a2 2 0 01-1.414.586h-2.828a2 2 0 01-1.414-.586l-1.657-1.657a2 2 0 010-2.828l8.485-8.485z" />
+                    </svg>
+                  </div>
+                  <ul tabindex="0" class="dropdown-content menu p-4 shadow-2xl bg-base-100 rounded-box w-64 gap-3">
 
-          <!-- DaisyUI Speed Dial FAB (right of input) -->
-          <div class="right-8 top-20 z-50">
-            <div class="dropdown dropdown-bottom dropdown-end">
-              <div tabindex="0" role="button" class="btn btn-circle btn-primary shadow-2xl"
-                :class="{ 'btn-disabled': store.loading }">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485a2 2 0 01-1.414.586h-2.828a2 2 0 01-1.414-.586l-1.657-1.657a2 2 0 010-2.828l8.485-8.485z" />
-                </svg>
-              </div>
-              <ul tabindex="0" class="dropdown-content menu p-4 shadow-2xl bg-base-100 rounded-box w-64 gap-3">
+                    <!-- color grid -->
+                    <div class="grid grid-cols-4 gap-5">
+                      <button @click="selectColor(null)"
+                        class="cursor-pointer w-10 h-10 rounded-lg shadow-lg hover:scale-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="store.loading">
+                        <div class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center">
+                          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                              d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </div>
+                      </button>
+                      <button v-for="color in colorPalette" :key="color" @click="selectColor(color)"
+                        class="cursor-pointer w-10 h-10 rounded-lg shadow-lg hover:scale-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        :style="{ backgroundColor: color }"
+                        :class="{ 'ring-4 ring-primary ring-offset-2': store.activeColor === color }"
+                        :disabled="store.loading">
+                      </button>
 
-                <!-- Color Grid -->
-                <div class="grid grid-cols-4 gap-5">
-                  <button @click="selectColor(null)"
-                    class="w-10 h-10 rounded-lg shadow-lg hover:scale-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    :disabled="store.loading">
-                    <div class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                          d="M6 18L18 6M6 6l12 12" />
-                      </svg>
                     </div>
-                  </button>
-                  <button v-for="color in colorPalette" :key="color" @click="selectColor(color)"
-                    class="w-10 h-10 rounded-lg shadow-lg hover:scale-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    :style="{ backgroundColor: color }"
-                    :class="{ 'ring-4 ring-primary ring-offset-2': store.activeColor === color }"
-                    :disabled="store.loading">
-                  </button>
-
+                  </ul>
                 </div>
-              </ul>
+              </div>
             </div>
           </div>
+
+
 
           <!-- stats -->
           <div class="relative right-0 bottom-0 text-sm opacity-70 flex items-center gap-3">
@@ -100,7 +100,7 @@ const clearFilters = () => {
             <span v-else-if="store.error" class="text-error">
               {{ store.error }}
             </span>
-            <span v-else>
+            <span v-else class="font-light">
               {{ store.resultCount.toLocaleString() }} results
             </span>
             <!--<button @click="clearFilters" class="link link-hover text-xs"
