@@ -29,7 +29,7 @@ const clearFilters = () => {
 
 <template>
   <div class="min-h-screen bg-base-200 flex flex-col">
-    <!-- Header -->
+    <!-- header -->
     <header class="bg-base-300/95 border-b border-base-100 py-6 sticky top-0 z-50 backdrop-blur-xl">
       <div class="max-w-screen-2xl mx-auto px-6">
 
@@ -41,16 +41,16 @@ const clearFilters = () => {
             Art Viewer
           </h1>
 
-          <!-- Search Input (perfectly centered) -->
+
           <div class="flex-1 max-w-2xl">
             <div class="relative">
               <input v-model="store.query" type="text" placeholder="Search millions of art, photos, illustrations..."
-                class="input input-lg input-bordered w-full pr-16 text-lg" autofocus spellcheck="false" />
+                class="input input-lg input-bordered rounded-full shadow-lg w-full pr-16 text-lg" autofocus spellcheck="false" />
 
-              <!-- Active Color Indicator (inside input, right side) -->
+
               <div v-if="store.activeColor"
                 class="absolute right-1 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg shadow-lg border-2 border-white"
-                :style="{ backgroundColor: store.activeColor }" ></div>
+                :style="{ backgroundColor: store.activeColor }"></div>
             </div>
           </div>
 
@@ -58,7 +58,7 @@ const clearFilters = () => {
           <div class="right-8 top-20 z-50">
             <div class="dropdown dropdown-bottom dropdown-end">
               <div tabindex="0" role="button" class="btn btn-circle btn-primary shadow-2xl"
-                   :class="{ 'btn-disabled': store.loading }">
+                :class="{ 'btn-disabled': store.loading }">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -67,35 +67,32 @@ const clearFilters = () => {
               </div>
               <ul tabindex="0" class="dropdown-content menu p-4 shadow-2xl bg-base-100 rounded-box w-64 gap-3">
 
-                <!-- Clear Filter Option -->
-                <li>
-                  <button @click="selectColor(null)" class="flex items-center gap-3 btn btn-ghost"
-                          :disabled="store.loading">
+                <!-- Color Grid -->
+                <div class="grid grid-cols-4 gap-5">
+                  <button @click="selectColor(null)"
+                    class="w-10 h-10 rounded-lg shadow-lg hover:scale-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    :disabled="store.loading">
                     <div class="w-10 h-10 rounded-lg bg-base-200 flex items-center justify-center">
                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
                           d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </div>
-                    <span>Clear color filter</span>
                   </button>
-                </li>
-
-                <!-- Color Grid -->
-                <div class="grid grid-cols-6 gap-3">
                   <button v-for="color in colorPalette" :key="color" @click="selectColor(color)"
                     class="w-10 h-10 rounded-lg shadow-lg hover:scale-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     :style="{ backgroundColor: color }"
                     :class="{ 'ring-4 ring-primary ring-offset-2': store.activeColor === color }"
                     :disabled="store.loading">
                   </button>
+
                 </div>
               </ul>
             </div>
           </div>
 
-          <!-- Live Status (bottom right of search) -->
-          <div class="absolute right-0 bottom-0 text-sm opacity-70 flex items-center gap-3">
+          <!-- stats -->
+          <div class="relative right-0 bottom-0 text-sm opacity-70 flex items-center gap-3">
             <span v-if="store.isTyping" class="flex items-center gap-2">
               <span class="loading loading-spinner loading-xs"></span>
               Searching...
@@ -106,16 +103,16 @@ const clearFilters = () => {
             <span v-else>
               {{ store.resultCount.toLocaleString() }} results
             </span>
-            <button @click="clearFilters" class="link link-hover text-xs"
+            <!--<button @click="clearFilters" class="link link-hover text-xs"
               :class="{ 'opacity-50': !store.activeColor && store.query === 'art' }">
               Clear all
-            </button>
+            </button>  -->
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
+    <!--main -->
     <div class="flex-1 flex overflow-hidden">
       <main class="flex-1 p-8 overflow-y-auto">
         <ImageGrid />

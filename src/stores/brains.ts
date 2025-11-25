@@ -71,13 +71,6 @@ export const useBrainsStore = defineStore(
     };
 
     const performSearch = async (reset = false) => {
-      // Don't search while color is active
-      if (activeColor.value) {
-        if (reset) photos.value = [];
-        loading.value = false;
-        return;
-      }
-
       if (reset) {
         page.value = 1;
         photos.value = [];
@@ -92,6 +85,11 @@ export const useBrainsStore = defineStore(
       try {
         const cleanQuery = query.value.trim().toLowerCase() || "art";
 
+        console.log(
+          "[search] fetching",
+          { query: cleanQuery, page: page.value, reset }
+        );
+
         const res = await axios.get("https://api.pexels.com/v1/search", {
           headers: { Authorization: import.meta.env.VITE_PEXELS_API_KEY },
           params: {
@@ -99,10 +97,10 @@ export const useBrainsStore = defineStore(
             per_page: 40,
             page: page.value,
           },
-          timeout: 10000, // 10 second timeout
+          timeout: 10000,
         });
 
-        const newPhotos = res.data.photos?.map((p: any) => ({
+        const newPhotosRaw = res.data.photos?.map((p: any) => ({
           id: p.id,
           alt: p.alt || "Untitled",
           photographer: p.photographer,
@@ -110,25 +108,39 @@ export const useBrainsStore = defineStore(
           src: p.src,
         })) || [];
 
-        // Check if we got fewer results than requested (indicates last page)
+        
+        const existingIds = new Set(photos.value.map((p) => p.id));
+        const newPhotos = newPhotosRaw.filter((p: any) => !existingIds.has(p.id));
+
+        console.log(
+          "[search] received",
+          {
+            rawCount: newPhotosRaw.length,
+            uniqueCount: newPhotos.length,
+            firstId: newPhotos[0]?.id,
+            lastId: newPhotos[newPhotos.length - 1]?.id,
+          }
+        );
+
         if (newPhotos.length < 40) {
           hasMoreResults.value = false;
         }
 
         photos.value = reset ? newPhotos : [...photos.value, ...newPhotos];
 
-        // Only increment page if we successfully got results
-        if (newPhotos.length > 0 && !reset) {
-          page.value++;
+       
+        // load more next page
+        if (newPhotos.length > 0) {
+          page.value = reset ? 2 : page.value + 1;
         }
 
-        // Reset retry count on success
+        // reset
         retryCount.value = 0;
 
       } catch (e: any) {
         console.error("Search failed:", e);
 
-        // Handle different error types
+
         if (e.response?.status === 429) {
           // Rate limiting
           error.value = "Too many requests. Please wait a moment and try again.";
@@ -160,7 +172,6 @@ export const useBrainsStore = defineStore(
       }
     };
 
-    // Watch query → instant search with 300ms debounce
     watch(
       query,
       () => {
@@ -174,9 +185,9 @@ export const useBrainsStore = defineStore(
       { immediate: false }
     );
 
-    // Manual load more (for scroll)
+    // Manual load more (for scroll or infinite scroll)
     const loadMore = () => {
-      if (!loading.value && !activeColor.value && hasMoreResults.value) {
+      if (!loading.value && hasMoreResults.value) {
         performSearch(false);
       }
     };
@@ -214,13 +225,13 @@ export const useBrainsStore = defineStore(
         .map(({ photo }) => photo);
     });
 
-    // Live result count
+    // result count
     const resultCount = computed(() => {
       const list = activeColor.value ? filteredPhotos.value : photos.value;
       return list.length;
     });
 
-    // Initial load
+    // init
     performSearch(true);
 
   

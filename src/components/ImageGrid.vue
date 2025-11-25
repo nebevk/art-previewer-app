@@ -1,8 +1,30 @@
 <script setup lang="ts">
 import ImageCard from './ImageCard.vue'
 import { useBrainsStore } from '../stores/brains'
+import { onMounted, onUnmounted } from 'vue'
 
 const store = useBrainsStore()
+
+// Infinite scroll: load more images when near the bottom of the page
+const handleScroll = () => {
+  if (store.loading || !store.hasMoreResults) return
+
+  const scrollPosition = window.innerHeight + window.scrollY
+  const threshold = 300 // px from bottom to trigger load
+  const fullHeight = document.documentElement.offsetHeight
+
+  if (scrollPosition >= fullHeight - threshold) {
+    store.loadMore()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <template>
@@ -25,15 +47,14 @@ const store = useBrainsStore()
       <ImageCard v-for="photo in store.filteredPhotos" :key="photo.id" :photo="photo" />
     </div>
 
-    <!-- Load More -->
+    <!-- Load More (fallback / manual trigger) -->
     <div class="text-center my-12">
       <button @click="store.loadMore()"
-              :disabled="store.loading || !store.hasMoreResults || !!store.activeColor"
+              :disabled="store.loading || !store.hasMoreResults"
               class="btn btn-lg btn-primary">
         <span v-if="store.loading" class="loading loading-spinner loading-sm"></span>
         <span v-else-if="!store.hasMoreResults">No more results</span>
-        <span v-else-if="store.activeColor">Load more disabled during color filter</span>
-        <span v-else>Load More ({{ store.resultCount }} results)</span>
+        <span v-else>Load more images</span>
       </button>
     </div>
   </div>
