@@ -87,7 +87,7 @@ const todayVsYesterday = computed(() => {
 <template>
   <aside class="w-80 bg-base-300 border-l border-base-100 p-3 overflow-y-auto">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-light">Latest Finds</h2>
+      <h2 class="text-2xl font-light">Your latest finds</h2>
       <button v-if="store.downloadHistory.length" type="button" class="btn btn-ghost btn-xs btn-circle"
         @click="store.clearDownloadHistory()">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor"
