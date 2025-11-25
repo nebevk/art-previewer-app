@@ -2,7 +2,7 @@
 import { useBrainsStore } from './stores/brains'
 import ImageGrid from './components/ImageGrid.vue'
 import HistorySidebar from './components/HistorySidebar.vue'
-import { ref } from 'vue'
+import { nextTick, ref } from 'vue'
 
 const store = useBrainsStore()
 
@@ -16,6 +16,9 @@ const colorPalette = [
   '#fb5607', '#ff4365', '#00bbf9', '#f15bb5', '#000000', '#ffffff'
 ]
 
+const hexColor = ref('')
+const hexInputRef = ref<HTMLInputElement | null>(null)
+
 const selectColor = (color: string | null) => {
   store.setColorFilter(color)
   isColorMenuOpen.value = false
@@ -25,13 +28,40 @@ const clearFilters = () => {
   store.setColorFilter(null)
   isColorMenuOpen.value = false
 }
+
+const normalizeHex = (value: string): string | null => {
+  let v = value.trim()
+  if (!v) return null
+
+  // Remove leading '#', support 3 or 6 hex chars
+  if (v.startsWith('#')) v = v.slice(1)
+
+  if (v.length === 3) {
+    // Expand short hex (#abc -> #aabbcc)
+    v = v.split('').map((ch) => ch + ch).join('')
+  }
+
+  if (!/^[0-9a-fA-F]{6}$/.test(v)) return null
+
+  return `#${v.toLowerCase()}`
+}
+
+const applyHexColor = async () => {
+  const normalized = normalizeHex(hexColor.value)
+  if (!normalized) return
+  hexColor.value = normalized
+  selectColor(normalized)
+
+  await nextTick()
+  hexInputRef.value?.select()
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-base-200 flex flex-col">
     <!-- header -->
     <header class="bg-base-300/95 border-b border-base-100 py-6 sticky top-0 z-50 backdrop-blur-xl">
-      <div class="max-w-screen-2xl mx-auto px-6">
+      <div class="w-full mx-auto px-6">
 
         <!-- Centered Row -->
         <div class="flex items-center justify-center gap-6 relative">
@@ -82,6 +112,19 @@ const clearFilters = () => {
                         :disabled="store.loading">
                       </button>
 
+                      <!-- custom hex input (width of two swatches + gap) -->
+                      <input
+                        ref="hexInputRef"
+                        v-model="hexColor"
+                        @keyup.enter="applyHexColor"
+                        @change="applyHexColor"
+                        type="text"
+                        placeholder="#RRGGBB"
+                        class="col-span-2 h-10 rounded-lg bg-base-200 px-3 text-sm text-base-content/80 shadow-lg focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="store.loading"
+                        spellcheck="false"
+                      />
+
                     </div>
                   </ul>
                 </div>
@@ -89,15 +132,26 @@ const clearFilters = () => {
             </div>
           </div>
 
+          <div class="absolute right-0">
+            <button class="btn btn-circle btn-ghost">info</button>
+            <button class="btn btn-circle btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            </button>
+          </div>
+
 
 
           <!-- stats -->
-          <div class="relative right-0 bottom-0 text-sm opacity-70 flex items-center gap-3">
+          <div class="relative w-32 right-0 bottom-0 text-sm opacity-70 flex items-center gap-3">
             <span v-if="store.isTyping" class="flex items-center gap-2">
-              <span class="loading loading-spinner loading-xs"></span>
+              <span class="font-light loading loading-spinner loading-xs"></span>
               Searching...
             </span>
-            <span v-else-if="store.error" class="text-error">
+            <span v-else-if="store.error" class="font-light text-error">
               {{ store.error }}
             </span>
             <span v-else class="font-light">

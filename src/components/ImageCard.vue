@@ -7,6 +7,8 @@ const props = defineProps<{ photo: Img }>()
 const store = useBrainsStore()
 const isDownloading = ref(false)
 const downloadError = ref<string | null>(null)
+const copied = ref(false)
+const copyTimeout = ref<number | null>(null)
 
 const startDrag = (e: DragEvent) => {
   if (!e.dataTransfer) return
@@ -44,6 +46,37 @@ const download = async () => {
     downloadError.value = error.message || "Download failed"
   } finally {
     isDownloading.value = false
+  }
+}
+
+const copyColorToClipboard = async (event: MouseEvent) => {
+  event.stopPropagation()
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(props.photo.avg_color)
+    } else {
+      // Fallback for very old browsers
+      const textarea = document.createElement('textarea')
+      textarea.value = props.photo.avg_color
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.focus()
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+    }
+
+    copied.value = true
+    if (copyTimeout.value) {
+      clearTimeout(copyTimeout.value)
+    }
+    copyTimeout.value = window.setTimeout(() => {
+      copied.value = false
+    }, 1500)
+  } catch (err) {
+    console.error('Failed to copy color to clipboard', err)
   }
 }
 </script>
@@ -84,21 +117,30 @@ const download = async () => {
       </div>
     </div>
 
-    <div class="absolute top-2 left-2">
-      <div class="w-6 h-6 rounded-full shadow-2xl border border-white/20 cursor-pointer"
-        :style="{ backgroundColor: photo.avg_color }" ></div>
+    <div class="absolute top-2 left-2 space-y-1 z-10">
+      <button
+        type="button"
+        @click.stop="copyColorToClipboard"
+        class="w-6 h-6 rounded-full shadow-2xl border border-white/40 cursor-pointer hover:scale-110 transition-transform"
+        :style="{ backgroundColor: photo.avg_color }"
+        aria-label="Copy average color to clipboard">
+      </button>
+      <div
+        v-if="copied"
+        class="px-2 py-0.5 rounded-full bg-black/80 text-[10px] font-medium text-white shadow-lg">
+        Copied
+      </div>
     </div>
 
     <img :src="photo.src.large2x" :alt="photo.alt" class="w-full aspect-video object-cover" loading="lazy" />
 
     <div
-      class="absolute inset-0 bg-linear-to-t from-black/90 via-transparent opacity-0 group-hover:opacity-100 transition"
+      class="absolute inset-0 bg-linear-to-t from-black/90 via-transparent opacity-0 group-hover:opacity-100 transition pointer-events-none"
       :class="{ 'opacity-100': isDownloading }">
       <div class="absolute bottom-4 left-4 right-4 text-white">
         <p class="font-light text-md truncate">{{ photo.alt }}</p>
-        <p class="text-xs opacity-80">by {{ photo.photographer }}</p>
         <p v-if="!isDownloading && !downloadError" class="text-xs mt-2 opacity-70">
-          Click to download | Drag to desktop/Figma
+          Click or drag to download.
         </p>
         <p v-if="isDownloading" class="text-xs mt-2 opacity-70 flex items-center gap-2">
           <span class="loading loading-spinner loading-xs"></span>

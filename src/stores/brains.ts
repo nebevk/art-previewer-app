@@ -193,13 +193,24 @@ export const useBrainsStore = defineStore(
     };
 
     const addToHistory = (photo: Img) => {
-      if (!downloadHistory.value.some((p) => p.id === photo.id)) {
-        downloadHistory.value.unshift({
-          ...photo,
-          downloadedAt: new Date().toISOString(),
-        });
+      const existingIndex = downloadHistory.value.findIndex((p) => p.id === photo.id);
+
+      const entry: Img = {
+        ...photo,
+        downloadedAt: new Date().toISOString(),
+      };
+
+      if (existingIndex !== -1) {
+        // Remove existing entry so the latest download is always at the top
+        downloadHistory.value.splice(existingIndex, 1);
       }
+
+      downloadHistory.value.unshift(entry);
       if (downloadHistory.value.length > 100) downloadHistory.value.pop();
+    };
+
+    const clearDownloadHistory = () => {
+      downloadHistory.value = [];
     };
 
     const setColorFilter = (color: string | null) => {
@@ -250,6 +261,7 @@ export const useBrainsStore = defineStore(
       performSearch,
       loadMore,
       addToHistory,
+      clearDownloadHistory,
       setColorFilter,
     };
   },
