@@ -2,11 +2,11 @@
 import { useBrainsStore } from './stores/brains'
 import ImageGrid from './components/ImageGrid.vue'
 import HistorySidebar from './components/HistorySidebar.vue'
-import { nextTick, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 const store = useBrainsStore()
 
-// Speed Dial (FAB) state
+// UI state
 const isColorMenuOpen = ref(false)
 
 const colorPalette = [
@@ -18,14 +18,10 @@ const colorPalette = [
 
 const hexColor = ref('')
 const hexInputRef = ref<HTMLInputElement | null>(null)
+const searchInputRef = ref<HTMLInputElement | null>(null)
 
 const selectColor = (color: string | null) => {
   store.setColorFilter(color)
-  isColorMenuOpen.value = false
-}
-
-const clearFilters = () => {
-  store.setColorFilter(null)
   isColorMenuOpen.value = false
 }
 
@@ -55,6 +51,91 @@ const applyHexColor = async () => {
   await nextTick()
   hexInputRef.value?.select()
 }
+
+// Info modal state
+const isInfoOpen = ref(false)
+
+// Theme (light / dark) state
+const theme = ref<'light' | 'dark'>('dark')
+
+const applyTheme = (value: 'light' | 'dark') => {
+  if (typeof document === 'undefined') return
+  document.documentElement.setAttribute('data-theme', value)
+}
+
+const toggleTheme = () => {
+  theme.value = theme.value === 'dark' ? 'light' : 'dark'
+  applyTheme(theme.value)
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem('theme', theme.value)
+  }
+}
+
+const handleGlobalKeydown = (event: KeyboardEvent) => {
+  // ESC: close color palette (if open) and clear search query
+  if (event.key === 'Escape') {
+    let handled = false
+
+    if (isColorMenuOpen.value) {
+      isColorMenuOpen.value = false
+      handled = true
+    }
+
+    if (store.query) {
+      store.query = ''
+      handled = true
+    }
+
+    if (handled) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    return
+  }
+
+  // Ctrl + I: open color palette and focus custom hex input
+  if (event.ctrlKey && (event.key === 'i' || event.key === 'I')) {
+    event.preventDefault()
+    isColorMenuOpen.value = true
+
+    nextTick(() => {
+      hexInputRef.value?.focus()
+      hexInputRef.value?.select()
+    })
+
+    return
+  }
+
+  // Ctrl + F: focus search input (instead of browser find)
+  if (event.ctrlKey && (event.key === 'f' || event.key === 'F')) {
+    event.preventDefault()
+    searchInputRef.value?.focus()
+    searchInputRef.value?.select()
+  }
+}
+
+onMounted(() => {
+  if (typeof window === 'undefined') return
+
+  const stored = window.localStorage.getItem('theme')
+  if (stored === 'light' || stored === 'dark') {
+    theme.value = stored
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    theme.value = 'dark'
+  } else {
+    theme.value = 'light'
+  }
+
+  applyTheme(theme.value)
+
+  window.addEventListener('keydown', handleGlobalKeydown)
+})
+
+onBeforeUnmount(() => {
+  if (typeof window === 'undefined') return
+  window.removeEventListener('keydown', handleGlobalKeydown)
+})
 </script>
 
 <template>
@@ -66,25 +147,39 @@ const applyHexColor = async () => {
         <!-- Centered Row -->
         <div class="flex items-center justify-center gap-6 relative">
 
-          <!-- Title (left-aligned but centered in layout) -->
-          <h1 class="absolute left-0 text-4xl font-light font-outfit tracking-tight">
+
+          <h1 class="hidden lg:block absolute left-0 text-3xl xl:text-4xl font-light font-outfit tracking-tight">
             Art Viewer
           </h1>
 
 
-          <div class="flex-1 max-w-2xl">
+          <div class="flex-1 w-full max-w-full lg:max-w-2xl">
             <div class="relative">
-              <input v-model="store.query" type="text" placeholder="Beautiful artwork awaits..."
-                class="input input-lg rounded-full shadow-lg w-full pr-16 text-lg border-none" autofocus
-                spellcheck="false" />
+              <input
+                ref="searchInputRef"
+                v-model="store.query"
+                type="text"
+                placeholder="Beautiful artwork awaits..."
+                class="input rounded-full shadow-lg w-full pr-12 border-none text-base sm:text-lg lg:input-lg lg:pr-16"
+                autofocus
+                spellcheck="false"
+              />
 
 
               <!-- color pallete -->
               <div class="absolute right-1 top-1/2 -translate-y-1/2 z-50">
-                <div class="dropdown dropdown-bottom dropdown-end">
-                  <div tabindex="0" role="button" class="btn btn-circle shadow-2xl"
+                <div
+                  class="dropdown dropdown-bottom dropdown-end"
+                  :class="{ 'dropdown-open': isColorMenuOpen }"
+                >
+                  <div
+                    tabindex="0"
+                    role="button"
+                    class="btn btn-circle shadow-2xl"
                     :class="{ 'btn-disabled': store.loading }"
-                    :style="{ backgroundColor: store.activeColor || 'black' }">
+                    :style="{ backgroundColor: store.activeColor || 'black' }"
+                    @click="!store.loading && (isColorMenuOpen = !isColorMenuOpen)"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                       stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -112,7 +207,7 @@ const applyHexColor = async () => {
                         :disabled="store.loading">
                       </button>
 
-                      <!-- custom hex input (width of two swatches + gap) -->
+                      <!-- custom hex input -->
                       <input
                         ref="hexInputRef"
                         v-model="hexColor"
@@ -132,13 +227,39 @@ const applyHexColor = async () => {
             </div>
           </div>
 
-          <div class="absolute right-0">
-            <button class="btn btn-circle btn-ghost">info</button>
-            <button class="btn btn-circle btn-ghost">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+          <div class="absolute right-0 flex items-center gap-2">
+            <!-- Info modal trigger -->
+            <button
+              class="btn btn-circle btn-ghost"
+              type="button"
+              aria-label="About this app"
+              @click="isInfoOpen = true"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+              </svg>
+            </button>
+
+            <!-- Theme toggle -->
+            <button
+              class="btn btn-circle btn-ghost"
+              type="button"
+              :aria-label="theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+              @click="toggleTheme"
+            >
+              <!-- Sun icon when in dark mode (suggests going to light) -->
+              <svg v-if="theme === 'dark'" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05L5.636 5.636m0 12.728l1.414-1.414M17.95 7.05l1.414-1.414M12 8a4 4 0 100 8 4 4 0 000-8z" />
+              </svg>
+              <!-- Moon icon when in light mode (suggests going to dark) -->
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
               </svg>
             </button>
           </div>
@@ -171,7 +292,44 @@ const applyHexColor = async () => {
       <main class="flex-1 p-8 overflow-y-auto">
         <ImageGrid />
       </main>
-      <HistorySidebar />
+
+      <HistorySidebar class="hidden xl:block" />
+    </div>
+
+    <!-- Info modal -->
+    <div v-if="isInfoOpen" class="modal modal-open">
+      <div class="modal-box max-w-xl">
+        <h3 class="font-bold text-xl mb-4">Welcome to Art Viewer</h3>
+        <div class="space-y-4 text-sm leading-relaxed">
+          <div class="space-y-2">
+            <p>
+              Use the search bar to describe the kind of artwork you&apos;d like to see. Results update as you refine your prompt.
+            </p>
+            <p>
+              The color picker lets you filter results by a dominant color, and the custom
+              <span class="font-mono text-xs">#RRGGBB</span> input accepts any hex color. Each image also have average color swatch that you can click to copy the hex color to clipboard.
+            </p>
+            <p>
+              The history panel keeps track of your recent downloads. Thubmnails can be clicked to redownload the image.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold mb-1">Keyboard shortcuts</h4>
+            <ul class="list-disc list-inside space-y-1 text-xs sm:text-sm">
+              <li><kbd class="kbd kbd-xs">Esc</kbd> – Close the color palette (if open) and clear the search query.</li>
+              <li><kbd class="kbd kbd-xs">Ctrl</kbd> + <kbd class="kbd kbd-xs">I</kbd> – Open the color palette and focus the custom hex input.</li>
+              <li><kbd class="kbd kbd-xs">Ctrl</kbd> + <kbd class="kbd kbd-xs">F</kbd> – Focus the main search input.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-action">
+          <button class="btn rounded-full" type="button" @click="isInfoOpen = false">
+            Got it
+          </button>
+        </div>
+      </div>
+      <button class="modal-backdrop" type="button" aria-label="Close info" @click="isInfoOpen = false"></button>
     </div>
   </div>
 </template>

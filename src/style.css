@@ -1,6 +1,6 @@
 @import url('https://fonts.cdnfonts.com/css/outfit7');
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin  "daisyui";
 
 html {
   scroll-behavior: smooth;

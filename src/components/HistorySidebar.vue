@@ -176,7 +176,7 @@ const todayVsYesterday = computed(() => {
 
     <div v-else class="space-y-4 pb-6">
       <div v-for="photo in store.downloadHistory" :key="photo.id" class="flex gap-3 items-center">
-        <button type="button" class="relative group w-10 h-10 rounded overflow-hidden flex-shrink-0"
+        <button type="button" class="relative group w-10 h-10 rounded overflow-hidden shrink-0"
           @click="redownload(photo)">
           <img :src="photo.src.medium" class="cursor-pointer w-full h-full object-cover" />
           <div
