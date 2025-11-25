@@ -299,7 +299,7 @@ onBeforeUnmount(() => {
     <!-- Info modal -->
     <div v-if="isInfoOpen" class="modal modal-open">
       <div class="modal-box max-w-xl">
-        <h3 class="font-bold text-xl mb-4">Welcome to Art Viewer</h3>
+        <h3 class="font-bold text-xl mb-4">Some useful tips</h3>
         <div class="space-y-4 text-sm leading-relaxed">
           <div class="space-y-2">
             <p>
