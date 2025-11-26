@@ -11,7 +11,7 @@ Another assumption I made is that this tool will be used by designers at compani
 ## How it began
 ![Art Viewer Sketch](./src/assets/previewer-sketch.jpg)
 
-Everything started on a piece of paper. With some brainstomring and my wifes suggestions I created initial lalyout idea that you can see above.
+Everything started on a piece of paper. With some brainstomring and my wife’s insights I created initial layout idea that you can see above.
 
 ## Current state
 
