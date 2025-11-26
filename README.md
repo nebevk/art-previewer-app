@@ -1,4 +1,5 @@
 ## Art Previewer – Inspiration Browser for Artists & Designers
+Netlify link: https://art-previewer.netlify.app/
 
 Art Previewer is a lightweight tool built with **Vue 3**, **TypeScript**, **Pinia**, **Vite**, **Tailwind** and **daisyUI**.  
 It is designed specifically for **artists and designers** who need a fast, organic way to explore visual ideas without a lot of UI noise.
