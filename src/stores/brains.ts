@@ -243,7 +243,11 @@ export const useBrainsStore = defineStore(
     });
 
     // init
-    performSearch(true);
+    // Avoid hitting the external API automatically during unit tests.
+    // Vite/Vitest set import.meta.env.MODE === 'test' when running tests.
+    if (import.meta.env.MODE !== 'test') {
+      performSearch(true);
+    }
 
   
 

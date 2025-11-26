@@ -24,7 +24,6 @@ That’s why the experience is intentionally simple: search by **keywords**, ref
   - Responsive image grid (`ImageGrid.vue`) rendering images as `ImageCard` components.
   - Each card (`ImageCard.vue`) shows:
     - Large thumbnail (`photo.src.large2x`) with clean, minimal framing.
-    - Subtle hover overlay with the image title and usage hint.
   - **Average color chip** on each image:
     - Displays the image’s average color.
     - Click to **copy the hex color** to clipboard, with a small “Copied” confirmation.
@@ -68,3 +67,22 @@ npm run dev
 ```
 
 Then open the local URL from the terminal in your browser.
+
+---
+
+## Testing
+
+This project uses **Vitest** for unit tests.
+
+- **Store tests**: there is a basic test suite for the `brains` Pinia store (`brains.test.ts`) that checks:
+  - Initial state (defaults for query, photos, history, color filter).
+  - `performSearch` success behavior using a mocked Pexels response.
+  - Download history updates and color filter logic.
+- The store’s initial API call is disabled when `import.meta.env.MODE === 'test'` so tests do not hit the real Pexels API.
+
+To run the tests:
+
+```bash
+npm test         # run once
+npm run test:watch  # watch mode during development
+```
