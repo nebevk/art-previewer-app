@@ -26,3 +26,4 @@ dist-ssr
 # Local history / IDE artifacts
 .history/
 **/.history/**
+REFACTOR_PLAN.md
