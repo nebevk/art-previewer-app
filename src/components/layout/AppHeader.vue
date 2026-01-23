@@ -60,9 +60,9 @@ defineExpose({
       <!-- Centered Row -->
       <div class="flex items-center justify-center gap-6 relative">
         <h1
-          class="hidden lg:block absolute left-0 text-3xl xl:text-4xl font-light font-outfit tracking-tight"
+          class="hidden lg:block absolute left-0 text-3xl xl:text-4xl font-light tracking-tight lobster-regular" 
         >
-          Art Viewer
+          Pick'a Pic
         </h1>
 
         <SearchBar ref="searchBarRef" />
