@@ -1,4 +1,4 @@
-import { onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { onMounted, onBeforeUnmount } from 'vue'
 
 export interface GlobalShortcutsCallbacks {
   onEscape?: () => void

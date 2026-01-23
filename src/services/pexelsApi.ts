@@ -22,13 +22,18 @@ export interface SearchParams {
 }
 
 export class PexelsApiError extends Error {
+  statusCode?: number
+  isRetryable: boolean
+
   constructor(
     message: string,
-    public statusCode?: number,
-    public isRetryable = false
+    statusCode?: number,
+    isRetryable = false
   ) {
     super(message)
     this.name = 'PexelsApiError'
+    this.statusCode = statusCode
+    this.isRetryable = isRetryable
   }
 }
 

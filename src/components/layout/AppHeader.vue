@@ -43,10 +43,6 @@ useGlobalShortcuts({
   onCtrlF: handleCtrlF,
 })
 
-const openInfo = () => {
-  emit('open-info')
-}
-
 defineExpose({
   searchInputRef: searchBarRef,
 })
