@@ -1,7 +1,7 @@
-## Art Previewer – Inspiration Browser for Artists & Designers
-Netlify preview (not thorough testing yet): https://artpreviewer.netlify.app
+## Pick'a Pic – Inspiration Browser for Artists & Designers
+Netlify preview (not thorough testing yet): https://pick-a-pic.netlify.app
 
-Art Previewer is a lightweight tool built with **Vue 3**, **TypeScript**, **Pinia**, **Vite**, **Tailwind** and **daisyUI**.  
+Pick'a Pic is a lightweight tool built with **Vue 3**, **TypeScript**, **Pinia**, **Vite**, **Tailwind** and **daisyUI**.  
 It is designed specifically for **artists and designers** who need a fast, organic way to explore visual ideas without a lot of UI noise.
 
 I made a deliberate assumption that this tool will be used in creative workflows where attention should stay on the images, not on complex controls.  
@@ -9,13 +9,13 @@ That’s why the experience is intentionally simple: search by **keywords**, ref
 Another assumption I made is that this tool will be used by designers at companies that already have many assets in their libraries with some metadata. That’s why the application does not handle asset uploads or metadata management.
 
 ## How it began
-![Art Viewer Sketch](./src/assets/previewer-sketch.jpg)
+![Pick'a Pic Sketch](./src/assets/previewer-sketch.jpg)
 
 Everything started on a piece of paper. With some brainstomring and my wife’s insights I created initial layout idea that you can see above.
 
 ## Current state
 
-![Art Viewer UI](./src/assets/app-screenshot.jpg)
+![Pick'a Pic UI](./src/assets/app-screenshot.jpg)
 
 This is the current state of the application with all of the features implemented.
 
